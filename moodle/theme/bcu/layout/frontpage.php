@@ -28,6 +28,7 @@ require_once(dirname(__FILE__) . '/includes/header.php');
 
 $left = theme_bcu_get_block_side();
 
+
 $hasfootnote = (!empty($PAGE->theme->settings->footnote));
 $haslogo = (!empty($PAGE->theme->settings->logo));
 $hasp1 = (!empty($PAGE->theme->settings->p1));
@@ -209,10 +210,13 @@ if (!empty($PAGE->theme->settings->infobox2)) {
             <?php echo $OUTPUT->navbar(); ?>
     </div>
         <?php
+        
         if($left == 1) {
             echo $OUTPUT->blocks('side-post', 'span3 desktop-first-column');
         }
+      
         ?>
+        
         <section id="region-main" class="span9 <?php if ($left) { echo ' '; } else { echo 'desktop-first-column'; } ?> ">
             <?php
             echo $OUTPUT->course_content_header();

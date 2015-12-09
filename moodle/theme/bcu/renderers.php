@@ -264,12 +264,23 @@ class theme_bcu_core_renderer extends core_renderer {
      * Uses bootstrap compatible html.
      */
     public function navbar() {
+    	global $CFG;
         $items = $this->page->navbar->get_items();
+   
         $breadcrumbs = array();
         foreach ($items as $item) {
             $item->hideicon = true;
-            $breadcrumbs[] = $this->render($item);
+            $navbarlink =$this->render($item);
+          
+            if ($CFG->is_student_exam_lu) {
+            	$navbarlink = str_replace('我的课程', '我的考试', $navbarlink);
+            	$navbarlink = str_replace('/moodle/my/', '/moodle', $navbarlink);
+            	
+            }
+            $breadcrumbs[] = $navbarlink;
         }
+        
+     
         $divider = '<span class="divider">/</span>';
         $listitems = '<li>'.join(" $divider</li><li>", $breadcrumbs).'</li>';
         $title = '<span class="accesshide">'.get_string('pagepath').'</span>';
@@ -305,7 +316,7 @@ class theme_bcu_core_renderer extends core_renderer {
     }
 
     public function navigation_menu() {
-        global $PAGE, $COURSE, $OUTPUT, $CFG;
+        global $PAGE, $COURSE, $OUTPUT, $CFG,$DB;
         $menu = new custom_menu();
         
         if (isloggedin() && !isguestuser()) {
@@ -316,85 +327,97 @@ class theme_bcu_core_renderer extends core_renderer {
                 $branchsort  = 9998;
                 $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
             }
-            
-            if (!empty($PAGE->theme->settings->enablemyhome)) {
-                $branchtitle = get_string('myhome');
-                $branchlabel = '<i class="fa fa-dashboard"></i> '.$branchtitle;
-                $branchurl   = new moodle_url('/my/index.php');
-                $branchsort  = 9999;
+            $is_guanli = is_role_lu($_SESSION,1);
+			if ($is_guanli){
+				$branchtitle = '考试设置';
+                $branchlabel = '<i class="fa fa-home"></i> '.$branchtitle;
+                $branchurl   = new moodle_url('/kaoshi/index.php');
+                $branchsort  = 9998;
                 $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
-            }
+			}
             
-            if (!empty($PAGE->theme->settings->enableevents)) {
-                $branchtitle = get_string('events', 'theme_bcu');
-                $branchlabel = '<i class="fa fa-calendar"></i> '.$branchtitle;
-                $branchurl   = new moodle_url('/calendar/view.php');
-                $branchsort  = 10000;
-                $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
+            if (!$CFG->is_student_exam_lu) {
+	            if (!empty($PAGE->theme->settings->enablemyhome)) {
+	                $branchtitle = get_string('myhome');
+	                $branchlabel = '<i class="fa fa-dashboard"></i> '.$branchtitle;
+	                $branchurl   = new moodle_url('/my/index.php');
+	                $branchsort  = 9999;
+	                $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
+	            }
+	            
+	            if (!empty($PAGE->theme->settings->enableevents)) {
+	                $branchtitle = get_string('events', 'theme_bcu');
+	                $branchlabel = '<i class="fa fa-calendar"></i> '.$branchtitle;
+	                $branchurl   = new moodle_url('/calendar/view.php');
+	                $branchsort  = 10000;
+	                $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
+	            }
+	            
+	            if (!empty($PAGE->theme->settings->enablemysites)) {
+	                $branchtitle = get_string('mysites', 'theme_bcu');
+	                $branchlabel = '<i class="fa fa-briefcase"></i><span class="menutitle">'.$branchtitle.'</span>';
+	                $branchurl   = new moodle_url('/my/index.php');
+	                $branchsort  = 10001;
+	
+	                $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
+	                list($sortedcourses, $sitecourses, $totalcourses) = block_course_overview_get_sorted_courses();
+	
+	                if ($sortedcourses) {
+	                    foreach ($sortedcourses as $course) {
+	                        if ($course->visible) {
+	                            $branch->add(format_string($course->fullname), new moodle_url('/course/view.php?id='.$course->id),
+	                                    format_string($course->shortname));
+	                        }
+	                    }
+	                } else {
+	                    $noenrolments = get_string('noenrolments', 'theme_bcu');
+	                    $branch->add('<em>'.$noenrolments.'</em>', new moodle_url('/'), $noenrolments);
+	                }
+           	 	}
             }
-            
-            if (!empty($PAGE->theme->settings->enablemysites)) {
-                $branchtitle = get_string('mysites', 'theme_bcu');
-                $branchlabel = '<i class="fa fa-briefcase"></i><span class="menutitle">'.$branchtitle.'</span>';
-                $branchurl   = new moodle_url('/my/index.php');
-                $branchsort  = 10001;
-
-                $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
-                list($sortedcourses, $sitecourses, $totalcourses) = block_course_overview_get_sorted_courses();
-
-                if ($sortedcourses) {
-                    foreach ($sortedcourses as $course) {
-                        if ($course->visible) {
-                            $branch->add(format_string($course->fullname), new moodle_url('/course/view.php?id='.$course->id),
-                                    format_string($course->shortname));
-                        }
-                    }
-                } else {
-                    $noenrolments = get_string('noenrolments', 'theme_bcu');
-                    $branch->add('<em>'.$noenrolments.'</em>', new moodle_url('/'), $noenrolments);
-                }
-            }
-            
-            if (!empty($PAGE->theme->settings->enablethiscourse)) {
-                if (ISSET($COURSE->id) && $COURSE->id > 1) {
-                    $branchtitle = get_string('thiscourse', 'theme_bcu');
-                    $branchlabel = '<i class="fa fa-sitemap"></i><span class="menutitle">'.$branchtitle.'</span>';
-                    $branchurl = new moodle_url('#');
-                    $branch = $menu->add($branchlabel, $branchurl, $branchtitle, 10002);
-
-                    $branchtitle = "People";
-                    $branchlabel = '<i class="fa fa-users"></i>'.$branchtitle;
-                    $branchurl = new moodle_url('/user/index.php', array('id' => $PAGE->course->id));
-                    $branch->add($branchlabel, $branchurl, $branchtitle, 100003);
-
-                    $branchtitle = get_string('grades');
-                    $branchlabel = $OUTPUT->pix_icon('i/grades', '', '', array('class' => 'icon')).$branchtitle;
-                    $branchurl = new moodle_url('/grade/report/index.php', array('id' => $PAGE->course->id));
-                    $branch->add($branchlabel, $branchurl, $branchtitle, 100004);
-
-                    $data = theme_bcu_get_course_activities();
-
-                    foreach ($data as $modname => $modfullname) {
-                        if ($modname === 'resources') {
-                            $icon = $OUTPUT->pix_icon('icon', '', 'mod_page', array('class' => 'icon'));
-                            $branch->add($icon.$modfullname, new moodle_url('/course/resources.php', array('id' => $PAGE->course->id)));
-                        } else {
-                            $icon = '<img src="'.$OUTPUT->pix_url('icon', $modname) . '" class="icon" alt="" />';
-                            $branch->add($icon.$modfullname, new moodle_url('/mod/'.$modname.'/index.php',
-                                    array('id' => $PAGE->course->id)));
-                        }
-                    }
-                }
-            }
+             if (!$CFG->is_student_exam_lu) {
+	            if (!empty($PAGE->theme->settings->enablethiscourse)) {
+	                if (ISSET($COURSE->id) && $COURSE->id > 1) {
+	                    $branchtitle = get_string('thiscourse', 'theme_bcu');
+	                    $branchlabel = '<i class="fa fa-sitemap"></i><span class="menutitle">'.$branchtitle.'</span>';
+	                    $branchurl = new moodle_url('#');
+	                    $branch = $menu->add($branchlabel, $branchurl, $branchtitle, 10002);
+	
+	                    $branchtitle = "People";
+	                    $branchlabel = '<i class="fa fa-users"></i>'.$branchtitle;
+	                    $branchurl = new moodle_url('/user/index.php', array('id' => $PAGE->course->id));
+	                    $branch->add($branchlabel, $branchurl, $branchtitle, 100003);
+	
+	                    $branchtitle = get_string('grades');
+	                    $branchlabel = $OUTPUT->pix_icon('i/grades', '', '', array('class' => 'icon')).$branchtitle;
+	                    $branchurl = new moodle_url('/grade/report/index.php', array('id' => $PAGE->course->id));
+	                    $branch->add($branchlabel, $branchurl, $branchtitle, 100004);
+	
+	                    $data = theme_bcu_get_course_activities();
+	
+	                    foreach ($data as $modname => $modfullname) {
+	                        if ($modname === 'resources') {
+	                            $icon = $OUTPUT->pix_icon('icon', '', 'mod_page', array('class' => 'icon'));
+	                            $branch->add($icon.$modfullname, new moodle_url('/course/resources.php', array('id' => $PAGE->course->id)));
+	                        } else {
+	                            $icon = '<img src="'.$OUTPUT->pix_url('icon', $modname) . '" class="icon" alt="" />';
+	                            $branch->add($icon.$modfullname, new moodle_url('/mod/'.$modname.'/index.php',
+	                                    array('id' => $PAGE->course->id)));
+	                        }
+	                    }
+	                }
+	            }
+        	}
         }
-
-        if (!empty($PAGE->theme->settings->enablehelp)) {
-            $branchtitle = "Help";
-            $branchlabel = '<i class="fa fa-life-ring"></i>'.$branchtitle;
-            $branchurl   = new moodle_url($PAGE->theme->settings->enablehelp);
-            $branchsort  = 10003;
-            $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
-        }
+         if (!$CFG->is_student_exam_lu) {
+	        if (!empty($PAGE->theme->settings->enablehelp)) {
+	            $branchtitle = "Help";
+	            $branchlabel = '<i class="fa fa-life-ring"></i>'.$branchtitle;
+	            $branchurl   = new moodle_url($PAGE->theme->settings->enablehelp);
+	            $branchsort  = 10003;
+	            $branch = $menu->add($branchlabel, $branchurl, $branchtitle, $branchsort);
+	        }
+         }
         return $this->render_custom_menu($menu);
     }
 
@@ -667,7 +690,13 @@ class theme_bcu_core_course_renderer extends core_course_renderer {
                 $icondirection = 'right';
             }
             $arrow = html_writer::tag('span', '', array('class' => 'fa fa-chevron-'.$icondirection));
-            $btn = html_writer::tag('span', get_string('course') . ' ' . $arrow, array('class' => 'coursequicklink'));
+            
+            if (!$CFG->is_student_exam_lu) {
+            	$btn = html_writer::tag('span', get_string('course') . ' ' . $arrow, array('class' => 'coursequicklink'));
+            }else{
+            	$btn = html_writer::tag('span', '考试' . ' ' . $arrow, array('class' => 'coursequicklink'));
+            }
+            
             $content .= html_writer::link(new moodle_url('/course/view.php',
                 array('id' => $course->id)), $btn, array('class' => 'coursebtn submit btn btn-info btn-sm pull-right'));
         }
@@ -865,6 +894,7 @@ class theme_bcu_core_course_renderer extends core_course_renderer {
             }
             $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED)->set_attributes(
                     array('class' => 'frontpage-course-list-enrolled'));
+                    //print_R($sortedcourses); 我的课程的列表
             $output .= $this->coursecat_courses($chelper, $sortedcourses, $totalcount);
 
             if (!empty($rcourses)) {

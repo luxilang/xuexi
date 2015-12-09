@@ -29,6 +29,14 @@ if(!ISSET($fixedheader)) {
 }
 theme_bcu_initialise_zoom($PAGE);
 $setzoom = theme_bcu_get_zoom();
+is_student_exam_lu();
+if ($CFG->is_student_exam_lu) {
+    $setzoom = 'zoomin';
+}else{
+    $setzoom = 'nozoomin';
+}
+
+
 
 theme_bcu_initialise_full($PAGE);
 $setfull = theme_bcu_get_full();
@@ -168,20 +176,28 @@ echo $OUTPUT->doctype();
                         </a>
                         <div class="nav-collapse collapse ">
                             <?php echo $OUTPUT->navigation_menu(); ?>
+                            
                             <?php echo $OUTPUT->custom_menu(); ?>
                             <?php echo $OUTPUT->tools_menu(); ?>
-
+							<?php 
+                                 if (!$CFG->is_student_exam_lu) {
+                                ?>
                             <ul class="nav pull-right">
                                 <?php
                                 if (empty($PAGE->layout_options['langmenu']) || $PAGE->layout_options['langmenu']) {
                                     echo $OUTPUT->lang_menu();
                                 }
                                 ?>
+                                
                                 <li class="hbl"><a href="#" class="moodlezoom"><i class="fa fa-indent fa-lg"></i> <span class="zoomdesc"><?php echo get_string('hideblocks', 'theme_bcu') ?></span></a></li>
                                 <li class="sbl"><a href="#" class="moodlezoom"><i class="fa fa-outdent fa-lg"></i> <span class="zoomdesc"><?php echo get_string('showblocks', 'theme_bcu') ?></span></a></li>
                                 <li class="hbll"><a href="#" class="moodlewidth"><i class="fa fa-expand fa-lg"></i> <span class="zoomdesc"><?php echo get_string('fullscreen', 'theme_bcu') ?></span></a></li>
                                 <li class="sbll"><a href="#" class="moodlewidth"><i class="fa fa-compress fa-lg"></i> <span class="zoomdesc"><?php echo get_string('standardview', 'theme_bcu') ?></span></a></li>
+                               
                             </ul>
+                             <?php 
+                                 }
+                                ?>
                             <div id="edittingbutton" class="pull-right breadcrumb-button"><?php echo $OUTPUT->page_heading_button(); ?></div>
                         </div>
                     </div>
