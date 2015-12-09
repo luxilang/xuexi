@@ -103,6 +103,7 @@ class renderer_base {
         $classname = preg_replace('/_renderable$/', '', $classname);
 
         $rendermethod = 'render_'.$classname;
+        
         if (method_exists($this, $rendermethod)) {
             return $this->$rendermethod($widget);
         }

@@ -1047,7 +1047,8 @@ class moodle_page {
 
     /**
      * Sets the pagetype to use for this page.
-     *
+纸张类型设置
+这被自动设置为默认的文件路径，如e.g. mod/mymod/index.php 将会被设置成mod-mymod-index.大多数情况下，这很方便但是偶尔也会被覆盖。
      * Normally you do not need to set this manually, it is automatically created
      * from the script name. However, on some pages this is overridden.
      * For example the page type for course/view.php includes the course format,
@@ -1303,6 +1304,11 @@ class moodle_page {
     }
 
     /**
+其它编辑功能设置
+
+用户必须拥有此项额外的功能才能打开编辑页面。
+
+如果你更多的进行页面编辑更不仅是块编辑，这是非常有用的。
      * Some pages let you turn editing on for reasons other than editing blocks.
      * If that is the case, you can pass other capabilities that let the user
      * edit this page here.

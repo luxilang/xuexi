@@ -3907,7 +3907,9 @@ class settings_navigation extends navigation_node {
                 $switchroles->add($name, $url, self::TYPE_SETTING, null, $key, new pix_icon('i/switchrole', ''));
             }
         }
-
+		
+        
+        
         // Let admin tools hook into course navigation.
         $tools = get_plugin_list_with_function('tool', 'extend_navigation_course', 'lib.php');
         foreach ($tools as $toolfunction) {
