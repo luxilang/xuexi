@@ -98,6 +98,7 @@
     $PAGE->set_title($SITE->fullname);
     $PAGE->set_heading($SITE->fullname);
     $courserenderer = $PAGE->get_renderer('core', 'course');
+
     echo $OUTPUT->header();
 
 /// Print Section or custom info
@@ -225,7 +226,15 @@
                     //wrap frontpage course list in div container
                     echo html_writer::start_tag('div', array('id'=>'frontpage-course-list'));
 
-                    echo $OUTPUT->heading(get_string('mycourses'));
+					
+					is_student_exam_lu();
+					if ($CFG->is_student_exam_lu) {
+					    echo $OUTPUT->heading("我的考试");
+					}else{
+					    echo $OUTPUT->heading(get_string('mycourses'));
+					}
+					
+                    
                     echo $mycourseshtml;
 
                     //end frontpage course list div container
