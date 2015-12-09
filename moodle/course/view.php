@@ -114,6 +114,7 @@
 
     // Fix course format if it is no longer installed
     $course->format = course_get_format($course)->get_format();
+    
 
     $PAGE->set_pagetype('course-view-' . $course->format);
     $PAGE->set_other_editing_capability('moodle/course:update');
@@ -215,18 +216,20 @@
     }
 
     $completion = new completion_info($course);
+    
     if ($completion->is_enabled()) {
-        $PAGE->requires->string_for_js('completion-title-manual-y', 'completion');
+        $PAGE->requires->string_for_js('completion-title-manual-y', 'completion'); 
         $PAGE->requires->string_for_js('completion-title-manual-n', 'completion');
         $PAGE->requires->string_for_js('completion-alt-manual-y', 'completion');
         $PAGE->requires->string_for_js('completion-alt-manual-n', 'completion');
 
-        $PAGE->requires->js_init_call('M.core_completion.init');
+        $PAGE->requires->js_init_call('M.core_completion.init'); //打印js
     }
 
     // We are currently keeping the button here from 1.x to help new teachers figure out
     // what to do, even though the link also appears in the course admin block.  It also
     // means you can back out of a situation where you removed the admin block. :)
+
     if ($PAGE->user_allowed_editing()) {
         $buttons = $OUTPUT->edit_button($PAGE->url);
         $PAGE->set_button($buttons);
@@ -243,7 +246,7 @@
 
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
-
+	//如果标记完成 出现  隐参数
     if ($completion->is_enabled()) {
         // This value tracks whether there has been a dynamic change to the page.
         // It is used so that if a user does this - (a) set some tickmarks, (b)
@@ -261,7 +264,7 @@
     echo html_writer::start_tag('div', array('class'=>'course-content'));
 
     // make sure that section 0 exists (this function will create one if it is missing)
-    course_create_sections_if_missing($course, 0);
+    course_create_sections_if_missing($course, 0);  //是否有增加的课程 做缓存
 
     // get information about course modules and existing module types
     // format.php in course formats may rely on presence of these variables
@@ -276,9 +279,8 @@
     // Note that because of the way course fromats are constructed though
     // inclusion we pass parameters around this way..
     $displaysection = $section;
-
     // Include the actual course format.
-    require($CFG->dirroot .'/course/format/'. $course->format .'/format.php');
+    require($CFG->dirroot .'/course/format/'. $course->format .'/format.php');  //课程内容
     // Content wrapper end.
 
     echo html_writer::end_tag('div');

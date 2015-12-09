@@ -702,7 +702,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
 
     /**
      * Output the html for a multiple section page
-     *
+     * 打印课程主题列表
      * @param stdClass $course The course entry from DB
      * @param array $sections (argument not used)
      * @param array $mods (argument not used)
@@ -726,13 +726,16 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
 
         // Now the list of sections..
         echo $this->start_section_list();
-
+		//章节块的循环
+		
         foreach ($modinfo->get_section_info_all() as $section => $thissection) {
+        	//排头
             if ($section == 0) {
                 // 0-section is displayed a little different then the others
                 if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
+                
                     echo $this->section_header($thissection, $course, false, 0);
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
+                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0); //排头的主题列表
                     echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
                     echo $this->section_footer();
                 }
@@ -757,8 +760,9 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
 
                 continue;
             }
-
+			//不是编辑的模式
             if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+            	
                 // Display section summary only.
                 echo $this->section_summary($thissection, $course, null);
             } else {

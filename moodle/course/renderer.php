@@ -1052,7 +1052,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @return void
      */
     public function course_section_cm_list($course, $section, $sectionreturn = null, $displayoptions = array()) {
-        global $USER;
+        global $USER,$CFG;
 
         $output = '';
         $modinfo = get_fast_modinfo($course);
@@ -1072,19 +1072,43 @@ class core_course_renderer extends plugin_renderer_base {
 
         // Get the list of modules visible to user (excluding the module being moved if there is one)
         $moduleshtml = array();
+        
+      
         if (!empty($modinfo->sections[$section->section])) {
+        	
             foreach ($modinfo->sections[$section->section] as $modnumber) {
                 $mod = $modinfo->cms[$modnumber];
-
-                if ($ismoving and $mod->id == $USER->activitycopy) {
-                    // do not display moving mod
-                    continue;
-                }
-
-                if ($modulehtml = $this->course_section_cm_list_item($course,
-                        $completioninfo, $mod, $sectionreturn, $displayoptions)) {
-                    $moduleshtml[$modnumber] = $modulehtml;
-                }
+              
+		        if ($CFG->is_student_exam_lu) {  //排头 的  是学生考试 显示考试 列 
+			        if ($mod->modname == 'quiz') {
+					
+		                if ($ismoving and $mod->id == $USER->activitycopy) {
+		                    // do not display moving mod
+		                    continue;
+		                }
+		             
+		                
+		                if ($modulehtml = $this->course_section_cm_list_item($course,
+		                        $completioninfo, $mod, $sectionreturn, $displayoptions)) {
+		                    $moduleshtml[$modnumber] = $modulehtml;
+		                }
+						
+					}     
+		        }else{
+		        		if ($ismoving and $mod->id == $USER->activitycopy) {
+		                    // do not display moving mod
+		                    continue;
+		                }
+		             
+		          		
+		                
+		                if ($modulehtml = $this->course_section_cm_list_item($course,
+		                        $completioninfo, $mod, $sectionreturn, $displayoptions)) {
+		                    $moduleshtml[$modnumber] = $modulehtml;
+		                }
+		        
+		        }
+				
             }
         }
 
@@ -1403,14 +1427,17 @@ class core_course_renderer extends plugin_renderer_base {
             }
             $content .= $this->coursecat_coursebox($chelper, $course, $classes);
         }
-
+		
         if (!empty($pagingbar)) {
             $content .= $pagingbar;
         }
-        if (!empty($morelink)) {
-            $content .= $morelink;
+        if (!$CFG->is_student_exam_lu) { 
+        
+	        if (!empty($morelink)) {
+	            $content .= $morelink;
+	        }
         }
-
+		//var_dump($content);
         $content .= html_writer::end_tag('div'); // .courses
         return $content;
     }
@@ -1996,8 +2023,6 @@ class core_course_renderer extends plugin_renderer_base {
         if (!isloggedin() or isguestuser()) {
             return '';
         }
-
-        $output = '';
         if (!empty($CFG->navsortmycoursessort)) {
             // sort courses the same as in navigation menu
             $sortorder = 'visible DESC,'. $CFG->navsortmycoursessort.' ASC';
@@ -2052,6 +2077,7 @@ class core_course_renderer extends plugin_renderer_base {
                 $output .= html_writer::end_tag('div'); // .courses
             }
         }
+       
         return $output;
     }
 
