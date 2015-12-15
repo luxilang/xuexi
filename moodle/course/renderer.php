@@ -1061,6 +1061,7 @@ class core_course_renderer extends plugin_renderer_base {
         } else {
             $section = $modinfo->get_section_info($section);
         }
+      
         $completioninfo = new completion_info($course);
 
         // check if we are currently in the process of moving a module with JavaScript disabled
@@ -1075,7 +1076,7 @@ class core_course_renderer extends plugin_renderer_base {
         
       
         if (!empty($modinfo->sections[$section->section])) {
-        	
+        	  
             foreach ($modinfo->sections[$section->section] as $modnumber) {
                 $mod = $modinfo->cms[$modnumber];
               
