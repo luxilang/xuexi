@@ -266,15 +266,25 @@ class theme_bcu_core_renderer extends core_renderer {
     public function navbar() {
     	global $CFG;
         $items = $this->page->navbar->get_items();
-   
+   		
         $breadcrumbs = array();
+        
         foreach ($items as $item) {
             $item->hideicon = true;
+      		//print_R($item->text.$item->type.'<br />');
             $navbarlink =$this->render($item);
           
             if ($CFG->is_student_exam_lu) {
-            	$navbarlink = str_replace('我的课程', '我的考试', $navbarlink);
-            	$navbarlink = str_replace('/moodle/my/', '/moodle', $navbarlink);
+            	if ($item->type == 0) {
+            		$navbarlink = str_replace('我的课程', '我的考试', $navbarlink);
+            		$navbarlink = str_replace('/moodle/my/', '/moodle', $navbarlink);
+            		$navbarlink = str_replace('课程', '我的考试', $navbarlink);
+            		$navbarlink = str_replace('/moodle/course/index.php', '/moodle', $navbarlink);
+            		$navbarlink = str_replace('/moodle">Courses</a>', '/moodle">我的考试</a>', $navbarlink);
+            		$navbarlink = str_replace('/moodle">My courses</a>', '/moodle">我的考试</a>', $navbarlink);
+            		
+            	}
+            	
             	
             }
             $breadcrumbs[] = $navbarlink;
