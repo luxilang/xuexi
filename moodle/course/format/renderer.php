@@ -710,7 +710,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
      * @param array $modnamesused (argument not used)
      */
     public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
-        global $PAGE;
+        global $PAGE,$CFG,$DB;
 
         $modinfo = get_fast_modinfo($course);
         $course = course_get_format($course)->get_course();
@@ -730,17 +730,20 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
 		
         foreach ($modinfo->get_section_info_all() as $section => $thissection) {
         	//排头
-            if ($section == 0) {
-                // 0-section is displayed a little different then the others
-                if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-                
-                    echo $this->section_header($thissection, $course, false, 0);
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0); //排头的主题列表
-                    echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
-                    echo $this->section_footer();
-                }
-                continue;
-            }
+        
+	            if ($section == 0) {
+	                // 0-section is displayed a little different then the others
+	                if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
+	                
+	                    echo $this->section_header($thissection, $course, false, 0);
+	                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0); //排头的主题列表
+	                    echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
+	                    echo $this->section_footer();
+	                }
+	                continue;
+	            }
+        	
+            
             if ($section > $course->numsections) {
                 // activities inside this section are 'orphaned', this section will be printed as 'stealth' below
                 continue;
@@ -750,6 +753,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
             $showsection = $thissection->uservisible ||
                     ($thissection->visible && !$thissection->available &&
                     !empty($thissection->availableinfo));
+                 
             if (!$showsection) {
                 // If the hiddensections option is set to 'show hidden sections in collapsed
                 // form', then display the hidden section message - UNLESS the section is
@@ -760,18 +764,33 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
 
                 continue;
             }
-			//不是编辑的模式
-            if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+            if ($CFG->is_student_exam_lu) {
             	
-                // Display section summary only.
-                echo $this->section_summary($thissection, $course, null);
-            } else {
-                echo $this->section_header($thissection, $course, false, 0);
+            	$sql = "SELECT sequence FROM  {course_sections} WHERE  course = ? and section = ?  AND  availability !=''  ";
+    			$rs = $DB->get_record_sql($sql, array($course->id,$thissection->section)); 
+    			if (!empty($rs->sequence)) {
+    					echo $this->section_header($thissection, $course, false, 0);
+    			} 
                 if ($thissection->uservisible) {
                     echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
                     echo $this->courserenderer->course_section_add_cm_control($course, $section, 0);
                 }
                 echo $this->section_footer();
+            }else{
+				//不是编辑的模式
+	            if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE ) {
+	            
+	                // Display section summary only.
+	                echo $this->section_summary($thissection, $course, null);
+	            } else {
+	                echo $this->section_header($thissection, $course, false, 0);
+	               
+	                if ($thissection->uservisible) {
+	                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
+	                    echo $this->courserenderer->course_section_add_cm_control($course, $section, 0);
+	                }
+	                echo $this->section_footer();
+	            }
             }
         }
 
