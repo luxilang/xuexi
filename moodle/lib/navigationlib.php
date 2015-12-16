@@ -3400,6 +3400,7 @@ class settings_navigation extends navigation_node {
             return false;
         }
         $this->page = $page;
+        
         // Initialise the main navigation. It is most important that this is done
         // before we try anything
         $this->page->navigation->initialise();
@@ -3424,12 +3425,13 @@ class settings_navigation extends navigation_node {
         }
         $this->id = 'settingsnav';
         $this->context = $this->page->context;
-
+	
         $context = $this->context;
         if ($context->contextlevel == CONTEXT_BLOCK) {
             $this->load_block_settings();
             $context = $context->get_parent_context();
         }
+        
         switch ($context->contextlevel) {
             case CONTEXT_SYSTEM:
                 if ($this->page->url->compare(new moodle_url('/admin/settings.php', array('section'=>'frontpagesettings')))) {
@@ -3440,6 +3442,7 @@ class settings_navigation extends navigation_node {
                 $this->load_category_settings();
                 break;
             case CONTEXT_COURSE:
+            		
                 if ($this->page->course->id != $SITE->id) {
                     $this->load_course_settings(($context->id == $this->context->id));
                 } else {
@@ -3521,6 +3524,7 @@ class settings_navigation extends navigation_node {
                 $node->remove();
             }
         }
+
         $this->initialised = true;
     }
     /**

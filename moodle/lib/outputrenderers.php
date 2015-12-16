@@ -96,7 +96,9 @@ class renderer_base {
      * @return string
      */
     public function render(renderable $widget) {
-        $classname = get_class($widget);
+
+    	
+        $classname = get_class($widget); 
         // Strip namespaces.
         $classname = preg_replace('/^.*\\\/', '', $classname);
         // Remove _renderable suffixes
@@ -107,6 +109,7 @@ class renderer_base {
         if (method_exists($this, $rendermethod)) {
             return $this->$rendermethod($widget);
         }
+    	
         throw new coding_exception('Can not render widget, renderer method ('.$rendermethod.') not found.');
     }
 
@@ -3160,6 +3163,7 @@ EOD;
             }
             $content = $this->render($link);
         } else if ($item->action instanceof moodle_url) {
+
             $attributes = array();
             if ($title !== '') {
                 $attributes['title'] = $title;
@@ -3179,6 +3183,7 @@ EOD;
             }
             $content = html_writer::tag('span', $content, $attributes);
         }
+
         return $content;
     }
 

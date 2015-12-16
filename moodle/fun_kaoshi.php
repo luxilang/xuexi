@@ -28,7 +28,7 @@ function is_role_lu($session,$role_id) {
 function is_student_lu(){
     global $DB ,$_SESSION,$CFG;
     $is_guanli = is_role_lu($_SESSION,1);
-  
+  	$CFG->is_student_lu =false;
     if ($is_guanli) {
         return false ;
     }else{
@@ -36,6 +36,7 @@ function is_student_lu(){
         $is_xuesheng = is_role_lu($_SESSION,5);
         //var_dump($is_xuesheng);
         if ($is_xuesheng) {
+        	$CFG->is_student_lu = true;
             return true ;
         }else{
             return false ;

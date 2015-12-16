@@ -841,11 +841,24 @@ if (!isset($CFG->theme)) {
 // then use the one from the default language.  Otherwise (and this is the
 // majority of cases), use the stored locale specified by admin.
 // note: do not accept lang parameter from POST
-if (isset($_GET['lang']) and ($lang = optional_param('lang', '', PARAM_SAFEDIR))) {
-    if (get_string_manager()->translation_exists($lang, false)) {
-        $SESSION->lang = $lang;
-    }
+is_student_exam_lu();
+if ($CFG->is_student_lu) {
+	
+	 $SESSION->lang = 'zh_cn';
 }
+
+if (isset($_GET['lang']) and ($lang = optional_param('lang', '', PARAM_SAFEDIR))) {
+
+		if ($CFG->is_student_lu) {
+			 $lang = 'zh_cn';
+		}
+
+	    if (get_string_manager()->translation_exists($lang, false)) {
+	        $SESSION->lang = $lang;
+	    }
+	
+}
+
 unset($lang);
 
 // PARAM_SAFEDIR used instead of PARAM_LANG because using PARAM_LANG results

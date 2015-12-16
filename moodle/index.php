@@ -27,8 +27,9 @@
         header('Location: install.php');
         die;
     }
-
+	
     require_once('config.php');
+
     require_once($CFG->dirroot .'/course/lib.php');
     require_once($CFG->libdir .'/filelib.php');
 
@@ -227,7 +228,7 @@
                     echo html_writer::start_tag('div', array('id'=>'frontpage-course-list'));
 
 					
-					is_student_exam_lu();
+					
 					if ($CFG->is_student_exam_lu) {
 					    echo $OUTPUT->heading("我的考试");
 					}else{

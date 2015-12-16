@@ -1467,6 +1467,10 @@ abstract class moodle_database {
      * @throws dml_exception A DML specific exception is thrown for any errors.
      */
     public function get_record_sql($sql, array $params=null, $strictness=IGNORE_MISSING) {
+    	/*
+    	echo "<pre>";
+    	echo $sql;
+    	echo "</pre>";*/
         $strictness = (int)$strictness; // we support true/false for BC reasons too
         if ($strictness == IGNORE_MULTIPLE) {
             $count = 1;
